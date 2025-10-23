@@ -56,10 +56,10 @@ Select Transaction");
             is_finished = true;
         } else if user_input == "1" {
             register(&mut name);
-        } else if user_input == "2" && name != "" {
+        } else if user_input == "2" && name != "" && balance < 1_000_000.0 {
             deposit(&name, &mut balance, &currency);
-        } else if user_input == "3" && name != "" {
-
+        } else if user_input == "3" && name != "" && balance > 0.0 {
+            withdraw(&name, &mut balance, &currency);
         } else if user_input == "4" && name != "" {
 
         } else if user_input == "5" && name != "" {
@@ -126,9 +126,9 @@ Account Name");
             if !is_name_valid {
                 println!("ERROR: Name not valid. Alphabets and spaces are allowed.");
                 continue;
-            } else {
-                *name = user_input;
             }
+            
+            *name = user_input;
         }
         
         is_finished = prompt();
@@ -138,19 +138,84 @@ Account Name");
 
 fn deposit(name: &String, balance: &mut f64, currency: &Currency) {
     let mut is_finished: bool = false;
-    let mut is_balance_valid: bool = false;
+    let mut is_deposit_valid: bool = false;
     let mut user_input: String;
+    let mut parsed_user_input: f64;
 
     while !is_finished {
-        if !is_balance_valid {
-            println!("Deposit Amount
+        if !is_deposit_valid {
+            println!("\nWithdraw Amount
 Account Name: {name}
 Current Balance: {balance}
 Currency: {}", currency.to_str());
             user_input = input("Deposit Amount");
+            
+            if !user_input.parse::<f64>().is_ok() {
+                println!("ERROR: Deposit input not valid.");
+                continue;
+            }
+
+            parsed_user_input = user_input.parse::<f64>().unwrap();
+
+            if parsed_user_input <= 0.0 {
+                println!("ERROR: Deposit must be greater than 0.");
+                continue;
+            } else if parsed_user_input + *balance > 1_000_000.0 {
+                println!("ERROR: Balance must be less than or equal to 1,000,000 after depositing.");
+                continue;
+            }
+
+            *balance += user_input.parse::<f64>().unwrap();
+            println!("Updated Balance: {}", balance);
+        }
+
+        if *balance == 1_000_000.0 {
+            break;
         }
 
         is_finished = prompt();
-        is_balance_valid = false;
+        is_deposit_valid = false;
+    }
+}
+
+fn withdraw(name: &String, balance: &mut f64, currency: &Currency) {
+    let mut is_finished: bool = false;
+    let mut is_deposit_valid: bool = false;
+    let mut user_input: String;
+    let mut parsed_user_input: f64;
+
+    while !is_finished {
+        if !is_deposit_valid {
+            println!("\nDeposit Amount
+Account Name: {name}
+Current Balance: {balance}
+Currency: {}", currency.to_str());
+            user_input = input("Deposit Amount");
+            
+            if !user_input.parse::<f64>().is_ok() {
+                println!("ERROR: Deposit input not valid.");
+                continue;
+            }
+
+            parsed_user_input = user_input.parse::<f64>().unwrap();
+
+            if parsed_user_input <= 0.0 {
+                println!("ERROR: Withdraw must be greater than 0.");
+                continue;
+            } else if *balance - parsed_user_input < 0.0 {
+                println!("ERROR: Balance must be at least 0 after withdrawing.");
+                continue;
+            }
+
+            *balance -= user_input.parse::<f64>().unwrap();
+            println!("Updated Balance: {}", balance);
+        }
+
+        if *balance == 0.0 {
+            break;
+        }
+
+        is_finished = prompt();
+        is_deposit_valid = false;
     }
 }

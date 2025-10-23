@@ -1,3 +1,4 @@
+use core::fmt;
 use std::io;
 use std::io::Write;
 
@@ -8,6 +9,25 @@ enum Currency {
     GBP, // British Pound Sterling
     EUR, // Euro
     CNY  // Chinese Yuan Renmini
+}
+
+impl Currency {
+    fn to_str(&self) -> &'static str {
+        match self {
+            Currency::PHP => "PHP",
+            Currency::USD => "USD",
+            Currency::JPY => "JPY",
+            Currency::GBP => "GBP",
+            Currency::EUR => "EUR",
+            Currency::CNY => "CNY",
+        }
+    }
+}
+
+impl fmt::Display for Currency {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self)
+    }
 }
 
 fn main() {
@@ -36,17 +56,19 @@ Select Transaction");
             is_finished = true;
         } else if user_input == "1" {
             register(&mut name);
-        } else if user_input == "2" {
+        } else if user_input == "2" && name != "" {
             deposit(&name, &mut balance, &currency);
-        } else if user_input == "3" {
+        } else if user_input == "3" && name != "" {
 
-        } else if user_input == "4" {
+        } else if user_input == "4" && name != "" {
 
-        } else if user_input == "5" {
+        } else if user_input == "5" && name != "" {
 
-        } else if user_input == "6" {
+        } else if user_input == "6" && name != "" {
 
-        } else {
+        } else if name == "" {
+            println!("ERROR: Register first.");
+        }else {
             println!("ERROR: Incorrect transaction input.");
         }
 
@@ -121,7 +143,11 @@ fn deposit(name: &String, balance: &mut f64, currency: &Currency) {
 
     while !is_finished {
         if !is_balance_valid {
-            user_input = input("\n");
+            println!("Deposit Amount
+Account Name: {name}
+Current Balance: {balance}
+Currency: {}", currency.to_str());
+            user_input = input("Deposit Amount");
         }
 
         is_finished = prompt();

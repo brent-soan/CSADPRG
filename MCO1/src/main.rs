@@ -2,17 +2,17 @@ use std::io;
 use std::io::Write;
 
 enum Currency {
-    PHP,
-    USD,
-    JPY,
-    GBP,
-    EUR,
-    CNY
+    PHP, // Philippine Peso 
+    USD, // United States Dollar
+    JPY, // Japanese Yen
+    GBP, // British Pound Sterling
+    EUR, // Euro
+    CNY  // Chinese Yuan Renmini
 }
 
 fn main() {
-    let mut is_running = true;  
-    let mut user_input = String::new();
+    let mut is_finished = false;  
+    let mut user_input;
 
     let mut name: String = String::new();
     let mut currency: Currency = Currency::PHP;
@@ -21,7 +21,7 @@ fn main() {
     println!("Welcome to MCO1 Banking and Currency App made with Rust!");
 
     // Main loop
-    while is_running {
+    while !is_finished {
         user_input = input("\nMain Menu
 [0] Exit
 [1] Register Account Name
@@ -32,19 +32,19 @@ fn main() {
 [6] Show Interest Amount
 Select Transaction");
         
-        if user_input.trim() == "0" {
-            is_running = false;
-        } else if user_input.trim() == "1" {
+        if user_input == "0" {
+            is_finished = true;
+        } else if user_input == "1" {
             register(&mut name);
-        } else if user_input.trim() == "2" {
+        } else if user_input == "2" {
+            deposit(&name, &mut balance, &currency);
+        } else if user_input == "3" {
 
-        } else if user_input.trim() == "3" {
+        } else if user_input == "4" {
 
-        } else if user_input.trim() == "4" {
+        } else if user_input == "5" {
 
-        } else if user_input.trim() == "5" {
-
-        } else if user_input.trim() == "6" {
+        } else if user_input == "6" {
 
         } else {
             println!("ERROR: Incorrect transaction input.");
@@ -66,11 +66,28 @@ fn input(prompt: &str) -> String {
     user_input.trim().to_string()
 }
 
-fn register(name: &mut String) {
-    let mut user_input: String = String::new();
-    let mut is_name_valid: bool = false;
+fn prompt() -> bool {
+    let mut user_input: String;
 
     loop {
+        user_input = input("\nBack to the Main Menu (Y/N)");
+
+        if user_input == "Y" {
+            return true;
+        } else if user_input == "N" {
+            return false;
+        }
+
+        println!("ERROR: Enter Y or N only.");
+    }
+}
+
+fn register(name: &mut String) {
+    let mut is_finished: bool = false;
+    let mut is_name_valid: bool = false;
+    let mut user_input: String;
+
+    while !is_finished {
         if !is_name_valid {
             user_input = input("\nRegister Account Name
 Account Name");
@@ -91,14 +108,23 @@ Account Name");
                 *name = user_input;
             }
         }
-        user_input = input("\nBack to the Main Menu (Y/N)");
+        
+        is_finished = prompt();
+        is_name_valid = false;
+    }
+}
 
-        if user_input == "Y" {
-            break;
-        } else if user_input == "N" {
-            is_name_valid = false;
-        } else {
-            println!("ERROR: ERROR: Enter Y or N only.");
+fn deposit(name: &String, balance: &mut f64, currency: &Currency) {
+    let mut is_finished: bool = false;
+    let mut is_balance_valid: bool = false;
+    let mut user_input: String;
+
+    while !is_finished {
+        if !is_balance_valid {
+            user_input = input("\n");
         }
+
+        is_finished = prompt();
+        is_balance_valid = false;
     }
 }

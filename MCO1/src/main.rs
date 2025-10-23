@@ -11,7 +11,7 @@ enum Currency {
 }
 
 fn main() {
-    let mut is_running = true;
+    let mut is_running = true;  
     let mut user_input = String::new();
 
     let mut name: String = String::new();
@@ -35,7 +35,7 @@ Select Transaction");
         if user_input.trim() == "0" {
             is_running = false;
         } else if user_input.trim() == "1" {
-            register(&name);
+            register(&mut name);
         } else if user_input.trim() == "2" {
 
         } else if user_input.trim() == "3" {
@@ -47,7 +47,7 @@ Select Transaction");
         } else if user_input.trim() == "6" {
 
         } else {
-            println!("ERROR: Incorrect user_input.");
+            println!("ERROR: Incorrect transaction input.");
         }
 
         user_input.clear();
@@ -63,11 +63,42 @@ fn input(prompt: &str) -> String {
     io::stdout().flush().unwrap();
     io::stdin().read_line(&mut user_input).expect("ERROR: Input failed.");
 
-    user_input
+    user_input.trim().to_string()
 }
 
-fn register(name: &String) {
-    //name = input("Register Account Name
-//Account Name");
-    input("Back to the Main Menu (Y/N)");
+fn register(name: &mut String) {
+    let mut user_input: String = String::new();
+    let mut is_name_valid: bool = false;
+
+    loop {
+        if !is_name_valid {
+            user_input = input("\nRegister Account Name
+Account Name");
+
+            for c in user_input.chars() {
+                if !c.is_alphabetic() && c != ' ' {
+                    is_name_valid = false;
+                    break;
+                } else if !is_name_valid {
+                    is_name_valid = true;
+                }
+            }
+
+            if !is_name_valid {
+                println!("ERROR: Name not valid. Alphabets and spaces are allowed.");
+                continue;
+            } else {
+                *name = user_input;
+            }
+        }
+        user_input = input("\nBack to the Main Menu (Y/N)");
+
+        if user_input == "Y" {
+            break;
+        } else if user_input == "N" {
+            is_name_valid = false;
+        } else {
+            println!("ERROR: ERROR: Enter Y or N only.");
+        }
+    }
 }

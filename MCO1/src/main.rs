@@ -25,7 +25,7 @@ impl Currency {
         }
     }
 
-    fn index(index: usize) -> Option<Currency> {
+    fn at(index: usize) -> Option<Currency> {
         match index {
             0 => Some(Currency::PHP),
             1 => Some(Currency::USD),
@@ -79,11 +79,11 @@ Select Transaction");
         } else if user_input == "1" {
             register(&mut name);
         } else if user_input == "2" && name != "" && balance < 1_000_000.0 {
-            deposit(&name, &mut balance, &currency);
+            deposit(&name, &currency, &mut balance);
         } else if user_input == "3" && name != "" && balance > 0.0 {
-            withdraw(&name, &mut balance, &currency);
+            withdraw(&name, &currency, &mut balance);
         } else if user_input == "4" && name != "" {
-            
+            exchange_currency(&mut currency, &mut balance, &exchange_rate);
         } else if user_input == "5" && name != "" {
             update_exchange_rate(&mut exchange_rate);
         } else if user_input == "6" && name != "" {
@@ -155,7 +155,7 @@ Account Name");
     }
 }
 
-fn deposit(name: &String, balance: &mut f64, currency: &Currency) {
+fn deposit(name: &String, currency: &Currency, balance: &mut f64) {
     let mut is_finished: bool = false;
     let mut user_input: String;
     let mut parsed_user_input: f64;
@@ -193,7 +193,7 @@ Currency: {}", currency.to_str());
     }
 }
 
-fn withdraw(name: &String, balance: &mut f64, currency: &Currency) {
+fn withdraw(name: &String, currency: &Currency, balance: &mut f64) {
     let mut is_finished: bool = false;
     let mut user_input: String;
     let mut parsed_user_input: f64;
@@ -231,13 +231,110 @@ Currency: {}", currency.to_str());
     }
 }
 
+fn exchange_currency(currency: &mut Currency, balance: &mut f64, exchange_rate: &HashMap<Currency, f64>) {
+    let mut is_finished: bool = false;
+    let mut is_from_currency_valid: bool = false;
+    let mut is_from_amount_valid: bool = false;
+    let mut is_to_currency_valid: bool = false;
+    let mut user_input: String;
+    let mut from_currency: Currency = Currency::PHP;
+    let mut from_currency_index: usize;
+    let mut from_amount: f64;
+    let mut to_currency: Currency = Currency::PHP;
+    let mut to_currency_index: usize;
+
+    while !is_finished {
+        if !is_from_currency_valid {
+            user_input = input("\nForeign Currency Exchange
+Source Currency Option:
+[0] Philippine Peso (PHP)
+[1] United States Dollar (USD)
+[2] Japanese Yen (JPY)
+[3] British Pound Sterling (GBP)
+[4] Euro (EUR)
+[5] Chinese Yuan Renminni (CNY)
+Source Currency");
+
+            if !user_input.parse::<usize>().is_ok() {
+                println!("ERROR: Input not valid.");
+                continue;
+            }
+            
+            from_currency_index = user_input.parse::<usize>().unwrap();
+
+            if let Some(c) = Currency::at(from_currency_index) {
+                from_currency = c;
+                is_from_currency_valid = true;
+            } else {
+                println!("ERROR: Input not valid.");
+                continue;
+            }
+        }
+
+        if !is_from_amount_valid {
+            user_input = input("Source Amount: ");
+
+            if !user_input.parse::<f64>().is_ok() {
+                println!("ERROR: Input not valid.");
+                continue;
+            }
+
+            from_amount = user_input.parse::<f64>().unwrap();
+
+            if from_amount <= 0.0 || from_amount > *balance {
+                println!("ERROR: Amount must be greater than 0 and less than {}.", balance);
+                continue;
+            }
+        }
+
+        if !is_to_currency_valid {
+            user_input = input("\nForeign Currency Exchange
+Source Currency Option:
+[0] Philippine Peso (PHP)
+[1] United States Dollar (USD)
+[2] Japanese Yen (JPY)
+[3] British Pound Sterling (GBP)
+[4] Euro (EUR)
+[5] Chinese Yuan Renminni (CNY)
+Source Currency");
+
+            if !user_input.parse::<usize>().is_ok() {
+                println!("ERROR: Input not valid.");
+                continue;
+            }
+            
+            to_currency_index = user_input.parse::<usize>().unwrap();
+
+            if let Some(c) = Currency::at(to_currency_index) {
+                if c == from_currency {
+                    println!("ERROR: Cannot exchange same currency.");
+                    continue;
+                }
+
+                to_currency = c;
+                is_to_currency_valid = true;
+            } else {
+                println!("ERROR: Input not valid.");
+                continue;
+            }
+        }
+
+        if from_currency == Currency::PHP && to_currency == Currency::USD {
+            
+        }
+
+        is_finished = prompt();
+        
+    }
+}
+
 fn update_exchange_rate(exchange_rate: &mut HashMap<Currency, f64>) {
     let mut is_finished: bool = false;
     let mut is_currency_valid: bool = false;
     let mut user_input: String;
     let mut currency_index: usize;
     let mut currency: Currency = Currency::PHP;
-    let mut value: f64;
+    let mut amount: f64;
 
     while !is_finished {
         if !is_currency_valid {
@@ -256,7 +353,7 @@ Select Foreign Currency");
 
             currency_index = user_input.parse::<usize>().unwrap();
 
-            if let Some(c) = Currency::index(currency_index) {
+            if let Some(c) = Currency::at(currency_index) {
                 currency = c;
                 is_currency_valid = true;
             } else {
@@ -272,14 +369,14 @@ Select Foreign Currency");
             continue;
         }
 
-        value = user_input.parse::<f64>().unwrap();
+        amount = user_input.parse::<f64>().unwrap();
 
-        if value <= 0.0 || value > 100_000.0 {
+        if amount <= 0.0 || amount > 100_000.0 {
             println!("ERROR: Exchange rate must be greater than 0 and less than 100,000.");
             continue;
         }
 
-        exchange_rate.insert(currency, value);
+        exchange_rate.insert(currency, amount);
         is_finished = prompt();
         currency = Currency::PHP;
         is_currency_valid = false;

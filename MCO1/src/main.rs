@@ -58,7 +58,7 @@ fn main() {
     exchange_rate.insert(Currency::JPY, 2.6);
     exchange_rate.insert(Currency::GBP, 0.013);
     exchange_rate.insert(Currency::EUR, 0.015);
-    exchange_rate.insert(Currency::EUR, 0.12);
+    exchange_rate.insert(Currency::CNY, 0.12);
 
     println!("Welcome to MCO1 Banking and Currency App made with Rust!");
 
@@ -82,7 +82,7 @@ Select Transaction");
             deposit(&name, &currency, &mut balance);
         } else if user_input == "3" && name != "" && balance > 0.0 {
             withdraw(&name, &currency, &mut balance);
-        } else if user_input == "4" && name != "" {
+        } else if user_input == "4" && name != "" && balance > 0.0 {
             exchange_currency(&mut currency, &mut balance, &exchange_rate);
         } else if user_input == "5" && name != "" {
             update_exchange_rate(&mut exchange_rate);
@@ -163,8 +163,8 @@ fn deposit(name: &String, currency: &Currency, balance: &mut f64) {
     while !is_finished {
         println!("\nWithdraw Amount
 Account Name: {name}
-Current Balance: {balance}
-Currency: {}", currency.to_str());
+Current Balance: {:.2}
+Currency: {}", balance, currency.to_str());
         user_input = input("Deposit Amount");
         
         if !user_input.parse::<f64>().is_ok() {
@@ -183,7 +183,7 @@ Currency: {}", currency.to_str());
         }
 
         *balance += user_input.parse::<f64>().unwrap();
-        println!("Updated Balance: {}", balance);
+        println!("Updated Balance: {:.2}", balance);
 
         if *balance == 1_000_000.0 {
             break;
@@ -201,8 +201,8 @@ fn withdraw(name: &String, currency: &Currency, balance: &mut f64) {
     while !is_finished {
         println!("\nDeposit Amount
 Account Name: {name}
-Current Balance: {balance}
-Currency: {}", currency.to_str());
+Current Balance: {:.2}
+Currency: {}", balance, currency.to_str());
         user_input = input("Deposit Amount");
         
         if !user_input.parse::<f64>().is_ok() {
@@ -221,7 +221,7 @@ Currency: {}", currency.to_str());
         }
 
         *balance -= user_input.parse::<f64>().unwrap();
-        println!("Updated Balance: {}", balance);
+        println!("Updated Balance: {:.2}", balance);
 
         if *balance == 0.0 {
             break;
@@ -233,98 +233,78 @@ Currency: {}", currency.to_str());
 
 fn exchange_currency(currency: &mut Currency, balance: &mut f64, exchange_rate: &HashMap<Currency, f64>) {
     let mut is_finished: bool = false;
-    let mut is_from_currency_valid: bool = false;
-    let mut is_from_amount_valid: bool = false;
-    let mut is_to_currency_valid: bool = false;
     let mut user_input: String;
-    let mut from_currency: Currency = Currency::PHP;
-    let mut from_currency_index: usize;
-    let mut from_amount: f64;
-    let mut to_currency: Currency = Currency::PHP;
+    let mut to_currency: Currency;
     let mut to_currency_index: usize;
 
     while !is_finished {
-        if !is_from_currency_valid {
-            user_input = input("\nForeign Currency Exchange
-Source Currency Option:
+        println!("\nForeign Currency Exchange
+Source Currency: {}
+Source Balance: {:.2}", currency.to_str(), balance);
+        user_input = input("\nExchange Currency Options:
 [0] Philippine Peso (PHP)
 [1] United States Dollar (USD)
 [2] Japanese Yen (JPY)
 [3] British Pound Sterling (GBP)
 [4] Euro (EUR)
 [5] Chinese Yuan Renminni (CNY)
-Source Currency");
+Exchange Currency");
 
-            if !user_input.parse::<usize>().is_ok() {
-                println!("ERROR: Input not valid.");
-                continue;
-            }
-            
-            from_currency_index = user_input.parse::<usize>().unwrap();
-
-            if let Some(c) = Currency::at(from_currency_index) {
-                from_currency = c;
-                is_from_currency_valid = true;
-            } else {
-                println!("ERROR: Input not valid.");
-                continue;
-            }
+        if !user_input.parse::<usize>().is_ok() {
+            println!("ERROR: Input not valid.");
+            continue;
         }
-
-        if !is_from_amount_valid {
-            user_input = input("Source Amount: ");
-
-            if !user_input.parse::<f64>().is_ok() {
-                println!("ERROR: Input not valid.");
-                continue;
-            }
-
-            from_amount = user_input.parse::<f64>().unwrap();
-
-            if from_amount <= 0.0 || from_amount > *balance {
-                println!("ERROR: Amount must be greater than 0 and less than {}.", balance);
-                continue;
-            }
-        }
-
-        if !is_to_currency_valid {
-            user_input = input("\nForeign Currency Exchange
-Source Currency Option:
-[0] Philippine Peso (PHP)
-[1] United States Dollar (USD)
-[2] Japanese Yen (JPY)
-[3] British Pound Sterling (GBP)
-[4] Euro (EUR)
-[5] Chinese Yuan Renminni (CNY)
-Source Currency");
-
-            if !user_input.parse::<usize>().is_ok() {
-                println!("ERROR: Input not valid.");
-                continue;
-            }
-            
-            to_currency_index = user_input.parse::<usize>().unwrap();
-
-            if let Some(c) = Currency::at(to_currency_index) {
-                if c == from_currency {
-                    println!("ERROR: Cannot exchange same currency.");
-                    continue;
-                }
-
-                to_currency = c;
-                is_to_currency_valid = true;
-            } else {
-                println!("ERROR: Input not valid.");
-                continue;
-            }
-        }
-
-        if from_currency == Currency::PHP && to_currency == Currency::USD {
-            
-        }
-
-        is_finished = prompt();
         
+        to_currency_index = user_input.parse::<usize>().unwrap();
+
+        if let Some(c) = Currency::at(to_currency_index) {
+            if c == *currency {
+                println!("ERROR: Cannot exchange same currency.");
+                continue;
+            }
+
+            to_currency = c;
+        } else {
+            println!("ERROR: Input not valid.");
+            continue;
+        }
+
+        if *currency == Currency::USD {
+            *balance = *balance / exchange_rate.get(&Currency::USD).unwrap();
+            *currency = Currency::PHP;
+        } else if *currency == Currency::JPY {
+            *balance = *balance / exchange_rate.get(&Currency::JPY).unwrap();
+            *currency = Currency::PHP;
+        } else if *currency == Currency::GBP {
+            *balance = *balance / exchange_rate.get(&Currency::GBP).unwrap();
+            *currency = Currency::PHP;
+        } else if *currency == Currency::EUR {
+            *balance = *balance / exchange_rate.get(&Currency::EUR).unwrap();
+            *currency = Currency::PHP;
+        } else if *currency == Currency::CNY {
+            *balance = *balance / exchange_rate.get(&Currency::CNY).unwrap();
+            *currency = Currency::PHP;
+        }
+
+        if *currency == Currency::PHP && to_currency == Currency::USD {
+            *balance = *balance * exchange_rate.get(&Currency::USD).unwrap();
+        } else if *currency == Currency::PHP && to_currency == Currency::JPY {
+            *balance = *balance * exchange_rate.get(&Currency::JPY).unwrap();
+        } else if *currency == Currency::PHP && to_currency == Currency::GBP {
+            *balance = *balance * exchange_rate.get(&Currency::GBP).unwrap();
+        } else if *currency == Currency::PHP && to_currency == Currency::EUR {
+            *balance = *balance * exchange_rate.get(&Currency::EUR).unwrap();
+        } else if *currency == Currency::PHP && to_currency == Currency::CNY {
+            *balance = *balance * exchange_rate.get(&Currency::CNY).unwrap();
+        }
+
+        if to_currency != Currency::PHP {
+            *currency = to_currency;
+        }
+
+        println!("Exchange Amount: {:.2}", balance);
+        
+        is_finished = prompt();
     }
 }
 

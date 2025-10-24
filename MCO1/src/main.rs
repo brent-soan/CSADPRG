@@ -1,7 +1,9 @@
 use core::fmt;
+use std::collections::HashMap;
 use std::io;
 use std::io::Write;
 
+#[derive(Hash, Eq, PartialEq, Debug)]
 enum Currency {
     PHP, // Philippine Peso 
     USD, // United States Dollar
@@ -37,6 +39,14 @@ fn main() {
     let mut name: String = String::new();
     let mut currency: Currency = Currency::PHP;
     let mut balance: f64 = 0.0;
+    
+    let mut exchange_rate: HashMap<Currency, f64> = HashMap::new();
+    exchange_rate.insert(Currency::PHP, 1.0);
+    exchange_rate.insert(Currency::USD, 0.017);
+    exchange_rate.insert(Currency::JPY, 2.6);
+    exchange_rate.insert(Currency::GBP, 0.013);
+    exchange_rate.insert(Currency::EUR, 0.015);
+    exchange_rate.insert(Currency::EUR, 0.12);
 
     println!("Welcome to MCO1 Banking and Currency App made with Rust!");
 
@@ -61,7 +71,7 @@ Select Transaction");
         } else if user_input == "3" && name != "" && balance > 0.0 {
             withdraw(&name, &mut balance, &currency);
         } else if user_input == "4" && name != "" {
-
+            update_exchange_rate(&mut exchange_rate);
         } else if user_input == "5" && name != "" {
 
         } else if user_input == "6" && name != "" {
@@ -69,7 +79,7 @@ Select Transaction");
         } else if name == "" {
             println!("ERROR: Register first.");
         }else {
-            println!("ERROR: Incorrect transaction input.");
+            println!("ERROR: Input not valid.");
         }
 
         user_input.clear();
@@ -151,7 +161,7 @@ Currency: {}", currency.to_str());
             user_input = input("Deposit Amount");
             
             if !user_input.parse::<f64>().is_ok() {
-                println!("ERROR: Deposit input not valid.");
+                println!("ERROR: Input not valid.");
                 continue;
             }
 
@@ -193,7 +203,7 @@ Currency: {}", currency.to_str());
             user_input = input("Deposit Amount");
             
             if !user_input.parse::<f64>().is_ok() {
-                println!("ERROR: Deposit input not valid.");
+                println!("ERROR: Input not valid.");
                 continue;
             }
 
@@ -217,5 +227,39 @@ Currency: {}", currency.to_str());
 
         is_finished = prompt();
         is_deposit_valid = false;
+    }
+}
+
+fn update_exchange_rate(exchange_rate: &mut HashMap<Currency, f64>) {
+    let mut is_finished: bool = false;
+    let mut is_currency_valid: bool = false;
+    let mut user_input: String;
+    let mut currency: i8;
+
+    while !is_finished {
+        if !is_currency_valid {
+            user_input = input("Record Exchange Rate
+[1] United States Dollar (USD)
+[2] Japanese Yen (JPY)
+[3] British Pound Sterling (GBP)
+[4] Euro (EUR)
+[5] Chinese Yuan Renminni (CNY)
+Select Foreign Currency");
+
+            if !user_input.parse::<i8>().is_ok() {
+                println!("ERROR: Input not valid.");
+                continue;
+            }
+
+            currency = user_input.parse::<i8>().unwrap();
+
+            if currency < 1 || currency > 5 {
+                println!("ERROR: Input not valid.");
+                continue;
+            }
+        }
+
+        is_finished = prompt();
+        is_currency_valid = false;
     }
 }

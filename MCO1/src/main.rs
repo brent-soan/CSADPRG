@@ -45,13 +45,15 @@ impl fmt::Display for Currency {
 }
 
 fn main() {
+    // Init
     let mut is_finished = false;  
     let mut user_input;
 
     let mut name: String = String::new();
     let mut currency: Currency = Currency::PHP;
     let mut balance: f64 = 0.0;
-    
+    let annual_interest_rate: f64 = 0.05;
+
     let mut exchange_rate: HashMap<Currency, f64> = HashMap::new();
     exchange_rate.insert(Currency::PHP, 1.0);
     exchange_rate.insert(Currency::USD, 0.017);
@@ -87,7 +89,7 @@ Select Transaction");
         } else if user_input == "5" && name != "" {
             update_exchange_rate(&mut exchange_rate);
         } else if user_input == "6" && name != "" && balance > 0.0 {
-            show_interest(&name, &currency, balance);
+            show_interest(&name, &currency, balance, annual_interest_rate);
         } else if name == "" {
             println!("ERROR: Register first.");
         }else {
@@ -199,7 +201,7 @@ fn withdraw(name: &String, currency: &Currency, balance: &mut f64) {
     let mut parsed_user_input: f64;
 
     while !is_finished {
-        println!("\nDeposit Amount
+        println!("\nWithdraw Amount
 Account Name: {name}
 Current Balance: {:.2}
 Currency: {}", balance, currency.to_str());
@@ -363,18 +365,19 @@ Select Foreign Currency");
     }
 }
 
-fn show_interest(name: &String, currency: &Currency, balance: f64) {
+fn show_interest(name: &String, currency: &Currency, balance: f64, annual_interest_rate: f64) {
     let mut is_finished: bool = false;
     let mut user_input: String;
     let mut days: usize;
-    let mut i: usize = 1;
+    let mut daily_interest: f64;
+    let mut expected_balance: f64 = balance;
 
     while !is_finished {
-        println!("Show Interest Amount
+        println!("\nShow Interest Amount
 Account Name: {name}
 Current Balance: {:.2}
 Currency: {}
-Interest Rate: ", balance, currency);
+Interest Rate: 5%", balance, currency.to_str());
         user_input = input("Total Number of Days");
 
         if !user_input.parse::<usize>().is_ok() {
@@ -382,17 +385,18 @@ Interest Rate: ", balance, currency);
             continue;
         }
         
-        days = user_input.parse::<usize>().unwrap();
+        days = user_input.parse::<usize>().unwrap() + 1;
 
         if days <= 0 || days > 18251 {
-            println!("Days must be greater than 0 and less than 18251 (50 years).");
+            println!("Days must be greater than 0 and less than 1825 (5 years).");
             continue;
         }
 
         println!("Day | Interest | Balance |");
-        while i <= days {
-            println!("{i} | Interest | Balance |");
-            i += 1;
+        daily_interest = balance * annual_interest_rate / 365.0;
+        for day in 1..days {
+            expected_balance += daily_interest;
+            println!("{day} | {:.2} | {:.2} |", daily_interest, expected_balance);
         }
 
         is_finished = prompt();

@@ -86,8 +86,8 @@ Select Transaction");
             exchange_currency(&mut currency, &mut balance, &exchange_rate);
         } else if user_input == "5" && name != "" {
             update_exchange_rate(&mut exchange_rate);
-        } else if user_input == "6" && name != "" {
-
+        } else if user_input == "6" && name != "" && balance > 0.0 {
+            show_interest(&name, &currency, balance);
         } else if name == "" {
             println!("ERROR: Register first.");
         }else {
@@ -360,5 +360,41 @@ Select Foreign Currency");
         is_finished = prompt();
         currency = Currency::PHP;
         is_currency_valid = false;
+    }
+}
+
+fn show_interest(name: &String, currency: &Currency, balance: f64) {
+    let mut is_finished: bool = false;
+    let mut user_input: String;
+    let mut days: usize;
+    let mut i: usize = 1;
+
+    while !is_finished {
+        println!("Show Interest Amount
+Account Name: {name}
+Current Balance: {:.2}
+Currency: {}
+Interest Rate: ", balance, currency);
+        user_input = input("Total Number of Days");
+
+        if !user_input.parse::<usize>().is_ok() {
+            println!("ERROR: Input not valid.");
+            continue;
+        }
+        
+        days = user_input.parse::<usize>().unwrap();
+
+        if days <= 0 || days > 18251 {
+            println!("Days must be greater than 0 and less than 18251 (50 years).");
+            continue;
+        }
+
+        println!("Day | Interest | Balance |");
+        while i <= days {
+            println!("{i} | Interest | Balance |");
+            i += 1;
+        }
+
+        is_finished = prompt();
     }
 }

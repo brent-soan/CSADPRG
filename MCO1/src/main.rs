@@ -400,5 +400,6 @@ Interest Rate: 5%", balance, currency.to_str());
         }
 
         is_finished = prompt();
+        expected_balance = balance;
     }
 }

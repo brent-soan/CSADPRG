@@ -46,7 +46,6 @@ impl fmt::Display for Currency {
 
 fn main() {
     // Init
-    let mut is_finished = false;  
     let mut user_input;
 
     let mut name: String = String::new();
@@ -65,7 +64,7 @@ fn main() {
     println!("Welcome to MCO1 Banking and Currency App made with Rust!");
 
     // Main loop
-    while !is_finished {
+    loop {
         user_input = input("\nMain Menu
 [0] Exit
 [1] Register Account Name
@@ -77,7 +76,7 @@ fn main() {
 Select Transaction");
         
         if user_input == "0" {
-            is_finished = true;
+            break;
         } else if user_input == "1" {
             register(&mut name);
         } else if user_input == "2" && name != "" && balance < 1_000_000.0 {
@@ -129,11 +128,10 @@ fn prompt() -> bool {
 }
 
 fn register(name: &mut String) {
-    let mut is_finished: bool = false;
     let mut is_name_valid: bool = false;
     let mut user_input: String;
 
-    while !is_finished {
+    loop {
         user_input = input("\nRegister Account Name
 Account Name");
 
@@ -152,17 +150,19 @@ Account Name");
         }
         
         *name = user_input;
-        is_finished = prompt();
+        if prompt() {
+            break;
+        }
+            
         is_name_valid = false;
     }
 }
 
 fn deposit(name: &String, currency: &Currency, balance: &mut f64) {
-    let mut is_finished: bool = false;
     let mut user_input: String;
     let mut parsed_user_input: f64;
 
-    while !is_finished {
+    loop {
         println!("\nWithdraw Amount
 Account Name: {name}
 Current Balance: {:.2}
@@ -189,18 +189,17 @@ Currency: {}", balance, currency.to_str());
 
         if *balance == 1_000_000.0 {
             break;
+        } else if prompt() {
+            break;
         }
-
-        is_finished = prompt();
     }
 }
 
 fn withdraw(name: &String, currency: &Currency, balance: &mut f64) {
-    let mut is_finished: bool = false;
     let mut user_input: String;
     let mut parsed_user_input: f64;
 
-    while !is_finished {
+    loop {
         println!("\nWithdraw Amount
 Account Name: {name}
 Current Balance: {:.2}
@@ -227,19 +226,18 @@ Currency: {}", balance, currency.to_str());
 
         if *balance == 0.0 {
             break;
+        } else if prompt() {
+            break;
         }
-
-        is_finished = prompt();
     }
 }
 
 fn exchange_currency(currency: &mut Currency, balance: &mut f64, exchange_rate: &HashMap<Currency, f64>) {
-    let mut is_finished: bool = false;
     let mut user_input: String;
     let mut to_currency: Currency;
     let mut to_currency_index: usize;
 
-    while !is_finished {
+    loop {
         println!("\nForeign Currency Exchange
 Source Currency: {}
 Source Balance: {:.2}", currency.to_str(), balance);
@@ -306,19 +304,20 @@ Exchange Currency");
 
         println!("Exchange Amount: {:.2}", balance);
         
-        is_finished = prompt();
+        if prompt() {
+            break;
+        }
     }
 }
 
 fn update_exchange_rate(exchange_rate: &mut HashMap<Currency, f64>) {
-    let mut is_finished: bool = false;
     let mut is_currency_valid: bool = false;
     let mut user_input: String;
     let mut currency_index: usize;
     let mut currency: Currency = Currency::PHP;
     let mut amount: f64;
 
-    while !is_finished {
+    loop {
         if !is_currency_valid {
             user_input = input("\nRecord Exchange Rate
 [1] United States Dollar (USD)
@@ -359,20 +358,22 @@ Select Foreign Currency");
         }
 
         exchange_rate.insert(currency, amount);
-        is_finished = prompt();
+        if prompt() {
+            break;
+        }
+        
         currency = Currency::PHP;
         is_currency_valid = false;
     }
 }
 
 fn show_interest(name: &String, currency: &Currency, balance: f64, annual_interest_rate: f64) {
-    let mut is_finished: bool = false;
     let mut user_input: String;
     let mut days: usize;
     let mut daily_interest: f64;
     let mut expected_balance: f64 = balance;
 
-    while !is_finished {
+    loop {
         println!("\nShow Interest Amount
 Account Name: {name}
 Current Balance: {:.2}
@@ -399,7 +400,10 @@ Interest Rate: 5%", balance, currency.to_str());
             println!("{day} | {:.2} | {:.2} |", daily_interest, expected_balance);
         }
 
-        is_finished = prompt();
+        if prompt() {
+            break;
+        }
+
         expected_balance = balance;
     }
 }

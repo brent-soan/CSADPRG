@@ -1,12 +1,40 @@
 use polars::prelude::*;
+use std::io;
+use std::io::Write;
 
 fn main() { 
+    let mut user_input;
+    let mut df;
+
     println!("Welcome to CSADPRG MCO2 Data Analysis Pipeline Project made with Rust!");
     
     loop {
-        
-    }
+        user_input = input("\nMain Menu
+[0] Load dataset
+[1] Generate reports");
 
+        if user_input == "0" {
+            load_dataset(&mut df);
+        } else if user_input == "1" { 
+            generate_reports(&df);
+        } else {
+            println!("ERROR: Input not valid.");
+        }
+
+    println!("Good bye!");
+}
+
+fn input(prompt: &str) -> String {
+    let mut user_input = String::new();
+    
+    print!("{}: ", prompt);
+    io::stdout().flush().unwrap();
+    io::stdin().read_line(&mut user_input).expect("ERROR: Input failed.");
+
+    user_input.trim().to_string()
+}
+
+fn load_dataset(df: &mut DataFrame) {
     let schema = Schema::from_iter(vec![
         Field::new("MainIsland".into(), DataType::String),
         Field::new("Region".into(), DataType::String),
@@ -32,7 +60,7 @@ fn main() {
         Field::new("ProvincialCapitalLongitude".into(), DataType::Float64),
     ]);
 
-    let df = LazyCsvReader::new(PlPath::new("dpwh_flood_control_projects.csv"))
+    df = LazyCsvReader::new(PlPath::new("dpwh_flood_control_projects.csv"))
         .with_has_header(true)
         .with_schema(Arc::new(schema).into())
         .finish()
@@ -63,8 +91,9 @@ fn main() {
         ])
         .collect()
         .unwrap();
+    
+}
 
-    println!("{}", df.head(Some(3)));
-
-    println!("Good bye!");
+fn generate_reports(df: &DataFrame) {
+    
 }

@@ -2,3 +2,9 @@
 name = "MCO2"
 version = "0.1.0"
 edition = "2024"
+
+[dependencies]
+# Features
+# lazy - Lazy API
+# timezones - Temporary fix for polars not compiling with lazy
+polars = { version = "0.52.0", features = ["lazy", "timezones"] }

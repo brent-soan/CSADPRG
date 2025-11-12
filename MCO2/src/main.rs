@@ -1,6 +1,8 @@
 use polars::prelude::*;
 
 fn main() { 
+    println!("Welcome to CSADPRG MCO2 Data Analysis Pipeline Project made with Rust!");
+
     let schema = Schema::from_iter(vec![
         Field::new("MainIsland".into(), DataType::String),
         Field::new("Region".into(), DataType::String),
@@ -59,4 +61,6 @@ fn main() {
         .unwrap();
 
     println!("{}", df.head(Some(3)));
+
+    println!("Good bye!");
 }

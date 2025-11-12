@@ -1,6 +1,6 @@
 # Tasks
 
-- [ ] Greeting
+- [X] Greeting
 - [ ] Main loop
 - [ ] Reports
     - [ ] Report 1
@@ -9,5 +9,8 @@
 - [ ] CSV loading
     - [ ] Function declaration
     - [ ] Data cleaning
-        - [ ] 
-- [ ] Good bye message
+        - [ ] Rows with missing data
+        - [ ] Duplicate rows
+        - [ ] Rows with incorrect data
+- [ ] Reports saving
+- [X] Good bye message

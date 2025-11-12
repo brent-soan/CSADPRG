@@ -61,7 +61,7 @@ fn main() {
     exchange_rate.insert(Currency::EUR, 0.015);
     exchange_rate.insert(Currency::CNY, 0.12);
 
-    println!("Welcome to MCO1 Banking and Currency App made with Rust!");
+    println!("Welcome to CSADPRG MCO1 Banking and Currency App made with Rust!");
 
     // Main loop
     loop {

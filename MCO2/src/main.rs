@@ -2,6 +2,10 @@ use polars::prelude::*;
 
 fn main() { 
     println!("Welcome to CSADPRG MCO2 Data Analysis Pipeline Project made with Rust!");
+    
+    loop {
+        
+    }
 
     let schema = Schema::from_iter(vec![
         Field::new("MainIsland".into(), DataType::String),

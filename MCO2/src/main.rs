@@ -4,24 +4,29 @@ use std::io::Write;
 
 fn main() { 
     let mut user_input;
-    let mut df;
+    let mut df: DataFrame = Default::default();
 
     println!("Welcome to CSADPRG MCO2 Data Analysis Pipeline Project made with Rust!");
     
     loop {
         user_input = input("\nMain Menu
-[0] Load dataset
-[1] Generate reports");
+[0] Exit
+[1] Load dataset
+[2] Generate reports
+Select option");
 
         if user_input == "0" {
-            load_dataset(&mut df);
+            break;
         } else if user_input == "1" { 
+            load_dataset(&mut df);
+        } else if user_input == "2" { 
             generate_reports(&df);
         } else {
             println!("ERROR: Input not valid.");
         }
+    }
 
-    println!("Good bye!");
+    println!("\nGood bye!");
 }
 
 fn input(prompt: &str) -> String {
@@ -35,6 +40,8 @@ fn input(prompt: &str) -> String {
 }
 
 fn load_dataset(df: &mut DataFrame) {
+    println!("\nLoading dataset...");
+
     let schema = Schema::from_iter(vec![
         Field::new("MainIsland".into(), DataType::String),
         Field::new("Region".into(), DataType::String),
@@ -60,12 +67,12 @@ fn load_dataset(df: &mut DataFrame) {
         Field::new("ProvincialCapitalLongitude".into(), DataType::Float64),
     ]);
 
-    df = LazyCsvReader::new(PlPath::new("dpwh_flood_control_projects.csv"))
+    *df = LazyCsvReader::new(PlPath::new("dpwh_flood_control_projects.csv"))
         .with_has_header(true)
         .with_schema(Arc::new(schema).into())
         .finish()
-        .unwrap()
-        .select([
+        .unwrap() // Extract LazyFrame
+        .select([ // Rename columns
             col("MainIsland").alias("main_island"),
             col("Region").alias("region"),
             col("Province").alias("province"),
@@ -90,10 +97,12 @@ fn load_dataset(df: &mut DataFrame) {
             col("ProvincialCapitalLongitude").alias("provincial_capital_longitude"),
         ])
         .collect()
-        .unwrap();
-    
+        .unwrap(); // Extract DataFrame
+    println!("{}", df);
+    println!("Dataset loaded");
 }
 
 fn generate_reports(df: &DataFrame) {
-    
+    println!("\nGenerating reports...");
+    println!("Reports generated");
 }

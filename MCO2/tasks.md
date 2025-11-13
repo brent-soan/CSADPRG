@@ -1,13 +1,13 @@
 # Tasks
 
 - [X] Greeting
-- [ ] Main loop
+- [X] Main loop
 - [ ] Reports
     - [ ] Report 1
     - [ ] Report 2
     - [ ] Report 3
 - [ ] CSV loading
-    - [ ] Function declaration
+    - [X] Function declaration
     - [ ] Data cleaning
         - [ ] Rows with missing data
         - [ ] Duplicate rows

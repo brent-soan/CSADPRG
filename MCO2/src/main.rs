@@ -98,8 +98,10 @@ fn load_dataset(df: &mut DataFrame) {
         ])
         .collect()
         .unwrap(); // Extract DataFrame
-    println!("{}", df);
-    println!("Dataset loaded");
+    println!("Rows {} loaded", df.shape().0);
+    
+    df.lazy().filter().collect().unwrap();
+    //println!("{}");
 }
 
 fn generate_reports(df: &DataFrame) {

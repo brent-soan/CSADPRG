@@ -8,8 +8,8 @@
     - [ ] Report 3
 - [ ] CSV loading
     - [X] Function declaration
-    - [X] Rename colunns
     - [ ] Data cleaning
+        - [X] Rename colunns
         - [ ] Rows with missing data
         - [ ] Duplicate rows
         - [ ] Rows with incorrect data

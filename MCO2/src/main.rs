@@ -102,6 +102,12 @@ fn load_dataset(df: &mut DataFrame) {
     
     *df = df.clone()
         .lazy()
+        .filter()
+        .collect()
+        .unwrap();
+    
+    *df = df.clone()
+        .lazy()
         .filter(
             col("start_date").dt().year().eq(lit(2021)).or(col("start_date").dt().year().eq(lit(2022))).or(col("start_date").dt().year().eq(lit(2023)))
         )

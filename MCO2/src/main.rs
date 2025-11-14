@@ -98,10 +98,18 @@ fn load_dataset(df: &mut DataFrame) {
         ])
         .collect()
         .unwrap(); // Extract DataFrame
-    println!("Rows {} loaded", df.shape().0);
+    println!("{} rows loaded", df.shape().0);
     
-    df.lazy().filter().collect().unwrap();
-    //println!("{}");
+    *df = df.clone()
+        .lazy()
+        .filter(
+            col("start_date").dt().year().eq(lit(2021)).or(col("start_date").dt().year().eq(lit(2022))).or(col("start_date").dt().year().eq(lit(2023)))
+        )
+        .collect()
+        .unwrap();
+    println!("{} filtered for 2021-2023", df.shape().0);
+    
+    println!("Loading finished");
 }
 
 fn generate_reports(df: &DataFrame) {

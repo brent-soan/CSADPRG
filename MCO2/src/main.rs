@@ -100,11 +100,16 @@ fn load_dataset(df: &mut DataFrame) {
         .unwrap(); // Extract DataFrame
     println!("{} rows loaded", df.shape().0);
     
-    *df = df.clone()
+    let temp = df.clone()
         .lazy()
-        .filter()
+        .select([
+            col("approved_budget_for_contract").cast(DataType::Float64),
+            col("contract_cost").cast(DataType::Float64)
+        ])
+        .filter(is_not_null(col("approved_budget_for_contract")).and(is_not_null(col("contract_cost"))))
         .collect()
         .unwrap();
+    println!("{}", temp.shape().0);
     
     *df = df.clone()
         .lazy()

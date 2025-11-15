@@ -81,7 +81,7 @@ fn load_dataset(df: &mut DataFrame) {
             col("DistrictEngineeringOffice").alias("district_engineering_office"),
             col("ProjectId").alias("project_id"),
             col("ProjectName").alias("project_name"),
-            col("TypeOfWork").alias("type_of_work"),
+            col("TypeOfWork").alias("work_type"),
             col("FundingYear").alias("funding_year"),
             col("ContractId").alias("contract_id"),
             col("ApprovedBudgetForContract").alias("approved_budget_for_contract"),

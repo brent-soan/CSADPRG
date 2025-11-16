@@ -135,5 +135,16 @@ fn load_dataset(df: &mut DataFrame) {
 
 fn generate_reports(df: &DataFrame) {
     println!("\nGenerating reports...");
+    
+    // Report 1: Regional Flood Mitigation Efﬁciency Summary
+    let report1_df = df.clone()
+        
+    
+    // Report 2: Top Contractors Performance Ranking
+    
+    
+    // Report 3: Annual Project Type Cost Overrun Trends
+    
+    
     println!("Reports generated");
 }

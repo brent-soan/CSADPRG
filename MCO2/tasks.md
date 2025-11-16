@@ -13,8 +13,8 @@
         - [ ] Rows with missing data
         - [ ] Duplicate rows
         - [ ] Rows with incorrect data
-    - [ ] Add columns
-        - [ ] cost_savings
-        - [ ] completion_delay_days
+    - [X] Add columns
+        - [X] cost_savings
+        - [X] completion_delay_days
 - [ ] Reports saving
 - [X] Good bye message

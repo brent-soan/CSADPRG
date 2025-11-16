@@ -119,6 +119,16 @@ fn load_dataset(df: &mut DataFrame) {
         .collect()
         .unwrap();
     println!("{} filtered for 2021-2023", df.shape().0);
+   
+   // Add columns 
+    *df = df.clone()
+            .lazy()
+            .with_columns([
+                (col("approved_budget_for_contract") - col("contract_cost")).alias("cost_savings"),
+                (col("actual_completion_date") - col("start_date")).dt().total_days().alias("completion_delay_days")
+            ])
+            .collect()
+            .unwrap();
     
     println!("Loading finished");
 }

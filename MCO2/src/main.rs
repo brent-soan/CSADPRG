@@ -100,9 +100,11 @@ fn load_dataset(df: &mut DataFrame) {
         .unwrap(); // Extract DataFrame
     println!("{} rows loaded", df.shape().0);
     
+    // Remove rows with invalid values in approved_budget_for_contract and contract_cost
     let temp = df.clone()
         .lazy()
         .select([
+            col("project_id"),
             col("approved_budget_for_contract").cast(DataType::Float64),
             col("contract_cost").cast(DataType::Float64)
         ])
@@ -110,6 +112,20 @@ fn load_dataset(df: &mut DataFrame) {
         .collect()
         .unwrap();
     println!("{}", temp.shape().0);
+
+    *df = df.clone()
+        .lazy()
+        .select([
+            all().exclude_cols(["approved_budget_for_contract", "contract_cost"]).as_expr()
+        ])
+        .join(
+            temp.clone().lazy(),
+            [col("project_id")],
+            [col("project_id")],
+            JoinArgs::new(JoinType::Inner)
+        )
+        .collect()
+        .unwrap();
     
     *df = df.clone()
         .lazy()
@@ -122,13 +138,13 @@ fn load_dataset(df: &mut DataFrame) {
    
    // Add columns 
     *df = df.clone()
-            .lazy()
-            .with_columns([
-                (col("approved_budget_for_contract") - col("contract_cost")).alias("cost_savings"),
-                (col("actual_completion_date") - col("start_date")).dt().total_days().alias("completion_delay_days")
-            ])
-            .collect()
-            .unwrap();
+        .lazy()
+        .with_columns([
+            (col("approved_budget_for_contract") - col("contract_cost")).alias("cost_savings"),
+            (col("actual_completion_date") - col("start_date")).dt().total_days(false).alias("completion_delay_days")
+        ])
+        .collect()
+        .unwrap();
     
     println!("Loading finished");
 }
@@ -138,6 +154,17 @@ fn generate_reports(df: &DataFrame) {
     
     // Report 1: Regional Flood Mitigation Efﬁciency Summary
     let report1_df = df.clone()
+        .lazy()
+        .group_by([col("region")])
+        .agg([
+            col("main_island"),
+            col("approved_budget_for_contract").sum().alias("total_budget"),
+            col("cost_savings").median().alias("median_savings"),
+            col("completion_delay_days").mean().alias("average_delay"),
+            //(col("project_id").sum()).alias("high_delay_percent"),
+            (col("median_savings") / col("average_delay") * lit(100)).alias("efficiency_score")
+        ]).collect()
+        .unwrap();
         
     
     // Report 2: Top Contractors Performance Ranking

@@ -5,6 +5,7 @@ use std::io::Write;
 fn main() { 
     let mut user_input;
     let mut df: DataFrame = Default::default();
+    let mut is_dataset_loaded = false;
 
     println!("Welcome to CSADPRG MCO2 Data Analysis Pipeline Project made with Rust!");
     
@@ -19,8 +20,13 @@ Select option");
             break;
         } else if user_input == "1" { 
             load_dataset(&mut df);
+            is_dataset_loaded = true;
         } else if user_input == "2" { 
-            generate_reports(&df);
+            if is_dataset_loaded {
+                generate_reports(&df);
+            } else {
+                println!("ERROR: Dataset is not yet loaded.");
+            }
         } else {
             println!("ERROR: Input not valid.");
         }
@@ -152,25 +158,36 @@ fn load_dataset(df: &mut DataFrame) {
 fn generate_reports(df: &DataFrame) {
     println!("\nGenerating reports...");
     
-    // Report 1: Regional Flood Mitigation Efﬁciency Summary
-    let report1_df = df.clone()
+    println!("Report 1: Regional Flood Mitigation Efﬁciency Summary");
+    let mut report1_df = df.clone()
         .lazy()
-        .group_by([col("region")])
+        .group_by([
+            col("region"),
+            col("main_island")])
         .agg([
-            col("main_island"),
             col("approved_budget_for_contract").sum().alias("total_budget"),
             col("cost_savings").median().alias("median_savings"),
             col("completion_delay_days").mean().alias("average_delay"),
-            //(col("project_id").sum()).alias("high_delay_percent"),
-            (col("median_savings") / col("average_delay") * lit(100)).alias("efficiency_score")
+            (col("completion_delay_days").gt(lit(30)).count() / col("completion_delay_days").count() * lit(100)).alias("high_delay_percent"),
         ]).collect()
         .unwrap();
+
+    report1_df = report1_df.clone()
+        .lazy()
+        .with_columns([
+            (col("median_savings") / col("average_delay") * lit(100)).alias("efficiency_score")
+        ])
+        .collect()
+        .unwrap();
+    println!("{report1_df}");
         
+    println!("\nReport 2: Top Contractors Performance Ranking");
+    // let mut report2_df = df.clone()
+    //     .lazy()
+    //     .group_by()
     
-    // Report 2: Top Contractors Performance Ranking
     
-    
-    // Report 3: Annual Project Type Cost Overrun Trends
+    println!("\nReport 3: Annual Project Type Cost Overrun Trends");
     
     
     println!("Reports generated");

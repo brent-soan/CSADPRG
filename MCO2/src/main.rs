@@ -180,15 +180,32 @@ fn generate_reports(df: &DataFrame) {
         .collect()
         .unwrap();
     println!("{report1_df}");
+
+    let mut report1_file = std::fs::File::create("reports/report1.csv").unwrap();
+    CsvWriter::new(&mut report1_file).finish(&mut report1_df).unwrap();
         
     println!("\nReport 2: Top Contractors Performance Ranking");
     // let mut report2_df = df.clone()
     //     .lazy()
-    //     .group_by()
+    // let mut report2_file = std::fs::File::create("reports/report2.csv").unwrap();
+    // CsvWriter::new(&mut report2_file).finish(&mut report2_df).unwrap();
     
     
     println!("\nReport 3: Annual Project Type Cost Overrun Trends");
-    
+    let mut report3_df = df.clone()
+        .lazy()
+        .group_by([
+            col("funding_year"),
+            col("work_type")
+        ])
+        .agg([
+
+        ])
+        .collect()
+        .unwrap();
+    println!("{report3_df}");
+    let mut report3_file = std::fs::File::create("reports/report3.csv").unwrap();
+    CsvWriter::new(&mut report3_file).finish(&mut report3_df).unwrap();
     
     println!("Reports generated");
 }

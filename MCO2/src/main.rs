@@ -186,10 +186,24 @@ fn generate_reports(df: &DataFrame) {
     CsvWriter::new(&mut report1_file).finish(&mut report1_df).unwrap();
         
     println!("\nReport 2: Top Contractors Performance Ranking");
-    // let mut report2_df = df.clone()
-    //     .lazy()
-    // let mut report2_file = std::fs::File::create("reports/report2.csv").unwrap();
-    // CsvWriter::new(&mut report2_file).finish(&mut report2_df).unwrap();
+    let mut report2_df = df.clone()
+        .lazy()
+        .group_by([
+            col("contractor")
+        ])
+        .agg([
+            len().alias("total_projects"),
+            col("completion_delay_days").mean().alias("average_delay"),
+            col("cost_savings").sum().alias("total_savings")
+        ])
+        /*.sort(
+            
+        )*/
+        .collect()
+        .unwrap();
+    println!("{report2_df}");
+    let mut report2_file = std::fs::File::create("reports/report2.csv2").unwrap();
+    CsvWriter::new(&mut report2_file).finish(&mut report2_df).unwrap();
     
     
     println!("\nReport 3: Annual Project Type Cost Overrun Trends");

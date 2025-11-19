@@ -202,9 +202,8 @@ fn generate_reports(df: &DataFrame) {
         .collect()
         .unwrap();
     println!("{report2_df}");
-    let mut report2_file = std::fs::File::create("reports/report2.csv2").unwrap();
+    let mut report2_file = std::fs::File::create("reports/report2.csv").unwrap();
     CsvWriter::new(&mut report2_file).finish(&mut report2_df).unwrap();
-    
     
     println!("\nReport 3: Annual Project Type Cost Overrun Trends");
     let mut report3_df = df.clone()
@@ -214,7 +213,10 @@ fn generate_reports(df: &DataFrame) {
             col("work_type")
         ])
         .agg([
-
+            len().alias("total_projects"),
+            col("cost_savings").mean().alias("average_cost_savings"),
+            //.alias("overrun_rate"),
+            //.alias("year_over_year_change")
         ])
         .collect()
         .unwrap();

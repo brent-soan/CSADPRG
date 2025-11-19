@@ -159,8 +159,11 @@ fn load_dataset(df: &mut DataFrame) {
 }
 
 fn generate_reports(df: &DataFrame) {
-    println!("\nGenerating reports...");
+    let summary = json!({
+        "total_projects": df.shape().0,
+    });
     
+    println!("\nGenerating reports...");
     println!("Report 1: Regional Flood Mitigation Efﬁciency Summary");
     let mut report1_df = df.clone()
         .lazy()
@@ -223,6 +226,12 @@ fn generate_reports(df: &DataFrame) {
     CsvWriter::new(&mut report2_file).finish(&mut report2_df).unwrap();
     
     println!("\nReport 3: Annual Project Type Cost Overrun Trends");
+    let baseline = df.clone()
+        .lazy()
+        .filter(col("funding_year").eq(lit(2021)))
+        .group_by([col("work_type")])
+        .agg([ col("cost_savings").mean().alias("baseline_avg_savings") ]);
+    
     let mut report3_df = df.clone()
         .lazy()
         .group_by([
@@ -233,7 +242,25 @@ fn generate_reports(df: &DataFrame) {
             len().alias("total_projects"),
             col("cost_savings").mean().alias("average_cost_savings"),
             (col("cost_savings").lt(lit(0)).cast(DataType::Float64).sum() / len() * lit(100)).alias("overrun_rate"),
-            //.alias("year_over_year_change")
+        ])
+        .join(
+            baseline,
+            [ col("work_type") ],
+            [ col("work_type") ],
+            JoinArgs::new(JoinType::Left),
+        )
+        .with_column(
+            when(col("baseline_avg_savings").is_null().or(col("baseline_avg_savings").eq(lit(0.0))))
+                .then(lit(0))
+                .otherwise(
+                    (col("average_cost_savings") - col("baseline_avg_savings"))
+                        / col("baseline_avg_savings")
+                        * lit(100.0)
+                )
+                .alias("year_over_year_change")
+        )
+        .select([
+            all().exclude_cols(["baseline_avg_savings"]).as_expr()
         ])
         .sort(["average_cost_savings"], SortMultipleOptions::new()
             .with_order_descending(true)
@@ -244,9 +271,6 @@ fn generate_reports(df: &DataFrame) {
     let mut report3_file = std::fs::File::create("reports/report3.csv").unwrap();
     CsvWriter::new(&mut report3_file).finish(&mut report3_df).unwrap();
 
-    let summary = json!({
-        "total_projects": df.shape().0,
-    });
     let mut f = File::create("reports/summary.json").unwrap();
     f.write_all(serde_json::to_string_pretty(&summary).unwrap().as_bytes()).unwrap();
     

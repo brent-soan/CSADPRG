@@ -185,9 +185,10 @@ fn generate_reports(df: &DataFrame) {
         .collect()
         .unwrap();
     println!("{report1_df}");
-
+    
     let mut report1_file = std::fs::File::create("reports/report1.csv").unwrap();
     CsvWriter::new(&mut report1_file).finish(&mut report1_df).unwrap();
+    println!("Full table exported to report1.csv");
         
     println!("\nReport 2: Top Contractors Performance Ranking");
     let mut report2_df = df.clone()
@@ -224,6 +225,7 @@ fn generate_reports(df: &DataFrame) {
     println!("{report2_df}");
     let mut report2_file = std::fs::File::create("reports/report2.csv").unwrap();
     CsvWriter::new(&mut report2_file).finish(&mut report2_df).unwrap();
+    println!("Full table exported to report2.csv");
     
     println!("\nReport 3: Annual Project Type Cost Overrun Trends");
     let baseline = df.clone()
@@ -270,9 +272,11 @@ fn generate_reports(df: &DataFrame) {
     println!("{report3_df}");
     let mut report3_file = std::fs::File::create("reports/report3.csv").unwrap();
     CsvWriter::new(&mut report3_file).finish(&mut report3_df).unwrap();
+    println!("Full table exported to report3.csv");
 
     let mut f = File::create("reports/summary.json").unwrap();
     f.write_all(serde_json::to_string_pretty(&summary).unwrap().as_bytes()).unwrap();
+    println!("Summary exported to summary.json");
     
     println!("Reports generated");
 }

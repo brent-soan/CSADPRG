@@ -104,7 +104,7 @@ fn load_dataset(df: &mut DataFrame) {
         ])
         .collect()
         .unwrap(); // Extract DataFrame
-    println!("{} rows loaded", df.shape().0);
+    println!("Loaded {} rows ", df.shape().0);
     
     // Remove rows with invalid values in approved_budget_for_contract and contract_cost
     let temp = df.clone()
@@ -117,7 +117,7 @@ fn load_dataset(df: &mut DataFrame) {
         .filter(is_not_null(col("approved_budget_for_contract")).and(is_not_null(col("contract_cost"))))
         .collect()
         .unwrap();
-    println!("{}", temp.shape().0);
+    println!("Removed {} rows with invalid values", df.shape().0 - temp.shape().0);
 
     *df = df.clone()
         .lazy()
@@ -140,7 +140,7 @@ fn load_dataset(df: &mut DataFrame) {
         )
         .collect()
         .unwrap();
-    println!("{} filtered for 2021-2023", df.shape().0);
+    println!("Filtered {} rows for 2021-2023", df.shape().0);
    
    // Add columns 
     *df = df.clone()
@@ -151,6 +151,7 @@ fn load_dataset(df: &mut DataFrame) {
         ])
         .collect()
         .unwrap();
+    println!("Added cost_savings and completion_delay_days");
     
     println!("Loading finished");
 }

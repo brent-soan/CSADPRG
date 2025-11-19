@@ -192,15 +192,21 @@ fn generate_reports(df: &DataFrame) {
             col("contractor")
         ])
         .agg([
+            col("contract_cost").sum().alias("total_cost"),
             len().alias("total_projects"),
             col("completion_delay_days").mean().alias("average_delay"),
             col("cost_savings").sum().alias("total_savings")
         ])
-        /*.sort(
-            
-        )*/
+        .filter(
+            col("total_projects").gt(lit(4)) 
+        )
+        .sort(["total_cost"], SortMultipleOptions::new()
+            .with_order_descending(true)
+            .with_maintain_order(true))
         .collect()
-        .unwrap();
+        .unwrap()
+        .head(Some(15));
+    
     println!("{report2_df}");
     let mut report2_file = std::fs::File::create("reports/report2.csv").unwrap();
     CsvWriter::new(&mut report2_file).finish(&mut report2_df).unwrap();

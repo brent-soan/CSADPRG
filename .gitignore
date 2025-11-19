@@ -21,4 +21,7 @@ target
 #.idea/
 
 # Reports
-*/reports
+MCO2/reports/report1.csv
+MCO2/reports/report2.csv
+MCO2/reports/report3.csv
+MCO2/reports/summary.json

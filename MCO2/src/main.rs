@@ -1,4 +1,6 @@
 use polars::prelude::*;
+use serde_json::json;
+use std::fs::File;
 use std::io;
 use std::io::Write;
 
@@ -170,14 +172,13 @@ fn generate_reports(df: &DataFrame) {
             col("cost_savings").median().alias("median_savings"),
             col("completion_delay_days").mean().alias("average_delay"),
             (col("completion_delay_days").gt(lit(30)).count() / col("completion_delay_days").count() * lit(100)).alias("high_delay_percent"),
-        ]).collect()
-        .unwrap();
-
-    report1_df = report1_df.clone()
-        .lazy()
+        ])
         .with_columns([
             (col("median_savings") / col("average_delay") * lit(100)).alias("efficiency_score")
         ])
+        .sort(["efficiency_score"], SortMultipleOptions::new()
+            .with_order_descending(true)
+        )
         .collect()
         .unwrap();
     println!("{report1_df}");
@@ -202,7 +203,7 @@ fn generate_reports(df: &DataFrame) {
         )
         .sort(["total_cost"], SortMultipleOptions::new()
             .with_order_descending(true)
-            .with_maintain_order(true))
+        )
         .collect()
         .unwrap()
         .head(Some(15))
@@ -231,14 +232,23 @@ fn generate_reports(df: &DataFrame) {
         .agg([
             len().alias("total_projects"),
             col("cost_savings").mean().alias("average_cost_savings"),
-            //.alias("overrun_rate"),
+            (col("cost_savings").lt(lit(0)).cast(DataType::Float64).sum() / len() * lit(100)).alias("overrun_rate"),
             //.alias("year_over_year_change")
         ])
+        .sort(["average_cost_savings"], SortMultipleOptions::new()
+            .with_order_descending(true)
+        )
         .collect()
         .unwrap();
     println!("{report3_df}");
     let mut report3_file = std::fs::File::create("reports/report3.csv").unwrap();
     CsvWriter::new(&mut report3_file).finish(&mut report3_df).unwrap();
+
+    let summary = json!({
+        "total_projects": df.shape().0,
+    });
+    let mut f = File::create("reports/summary.json").unwrap();
+    f.write_all(serde_json::to_string_pretty(&summary).unwrap().as_bytes()).unwrap();
     
     println!("Reports generated");
 }

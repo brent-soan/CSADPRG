@@ -8,3 +8,4 @@ edition = "2024"
 # lazy - Lazy API
 # timezones - Temporary fix for polars not compiling with lazy
 polars = { version = "0.52.0", features = ["lazy", "timezones"] }
+serde_json = "1.0"

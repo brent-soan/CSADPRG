@@ -16,5 +16,6 @@
     - [X] Add columns
         - [X] cost_savings
         - [X] completion_delay_days
-- [ ] Reports saving
+- [ ] Summary
+- [X] Reports saving
 - [X] Good bye message

@@ -195,7 +195,7 @@ fn generate_reports(df: &DataFrame) {
             col("contract_cost").sum().alias("total_cost"),
             len().alias("total_projects"),
             col("completion_delay_days").mean().alias("average_delay"),
-            col("cost_savings").sum().alias("total_savings")
+            col("cost_savings").sum().alias("total_savings"),
         ])
         .filter(
             col("total_projects").gt(lit(4)) 
@@ -205,7 +205,17 @@ fn generate_reports(df: &DataFrame) {
             .with_maintain_order(true))
         .collect()
         .unwrap()
-        .head(Some(15));
+        .head(Some(15))
+        .lazy()
+        .with_column(
+            ((lit(1) - col("average_delay") / lit(90)) * (col("total_savings") / col("total_cost")) * lit(100)).alias("reliability_index"),
+        )
+        .with_columns([
+            when(col("reliability_index").lt(lit(50))).then(lit("High Risk")).otherwise(lit("Low Risk")).alias("risk_flag"),
+            lit(Series::new("rank".into(), vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]))
+        ])
+        .collect()
+        .unwrap();
     
     println!("{report2_df}");
     let mut report2_file = std::fs::File::create("reports/report2.csv").unwrap();
